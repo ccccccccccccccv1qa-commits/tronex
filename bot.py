@@ -5,7 +5,6 @@ import os
 import re
 import time
 import threading
-import concurrent.futures
 import datetime
 import requests
 import phonenumbers
@@ -113,7 +112,7 @@ _BUILTIN_PANELS = [
     {'id': 'bp11', 'host': '139.99.68.231', 'base_url': 'http://139.99.68.231/ints', 'url_hint': 'http://139.99.68.231/ints/agent/SMSCDRStats', 'username': 'Rabbi12', 'password': 'Rabbi12', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': None},
     {'id': 'bp12', 'host': '51.75.144.178', 'base_url': 'http://51.75.144.178/ints', 'url_hint': 'http://51.75.144.178/ints/agent/SMSCDRStats', 'username': 'Rabbi12', 'password': 'Rabbi12@', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': None},
     {'id': 'd20591', 'host': '54.39.104.241', 'base_url': 'http://54.39.104.241/ints', 'url_hint': 'http://54.39.104.241/ints/client/SMSCDRStats', 'username': 'Atik9898', 'password': 'Atik9898', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': 6664150885},
-    {'id': 'd20984', 'host': '54.39.104.241', 'base_url': 'http://54.39.104.241/ints', 'url_hint': 'http://54.39.104.241/ints/agent/SMSCDRStats', 'username': 'Rabbi5', 'password': 'Rabbi5', 'engine': 'ints_smsranges', 'data_path': '/agent/res/data_smsranges.php', 'admin_id': 6664150885},
+    {'id': 'd20984', 'host': '54.39.104.241', 'base_url': 'http://54.39.104.241/ints', 'url_hint': 'http://54.39.104.241/ints/agent/SMSCDRStats', 'username': 'Rabbi5', 'password': 'Rabbi5', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': 6664150885},
     {'id': 'pscall1', 'host': 'pscall.net', 'base_url': 'http://pscall.net/restapi', 'url_hint': 'http://pscall.net/restapi/smsreport', 'username': 'api:pscall.net', 'password': '', 'api_key': 'SFNSQz1SS2NygIF6QlBR', 'api_key_param': 'key', 'engine': 'api_key', 'data_path': '/smsreport', 'admin_id': None},
     {'id': 'd34527', 'host': '151.80.19.204', 'base_url': 'http://151.80.19.204/ints', 'url_hint': 'http://151.80.19.204/ints/agent/SMSCDRStats', 'username': 'Atik9898', 'password': 'Atik9898', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': 6664150885},
     {'id': 'd39020', 'host': '139.99.69.196', 'base_url': 'http://139.99.69.196/ints', 'url_hint': 'http://139.99.69.196/ints/agent/SMSCDRStats', 'username': 'Mahofuza12', 'password': 'Mahofuza12', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': 6664150885},
@@ -121,12 +120,7 @@ _BUILTIN_PANELS = [
     {'id': 'd6180', 'host': '91.232.105.47', 'base_url': 'http://91.232.105.47/ints', 'url_hint': 'http://91.232.105.47/ints/agent/SMSCDRStats', 'username': 'Mahofuza', 'password': 'Mahofuza12@', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': 6664150885},
     {'id': 'd76011', 'host': '139.99.69.196', 'base_url': 'http://139.99.69.196/ints', 'url_hint': 'http://139.99.69.196/ints/agent/SMSCDRStats', 'username': 'Mahofuza12', 'password': 'Mahofuza1', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': 6664150885},
     {'id': 'fastx1', 'host': 'fastxotps.com', 'base_url': 'https://fastxotps.com', 'url_hint': 'https://fastxotps.com/dashboard', 'username': 'MURAD', 'password': '', 'api_key': 'MURAD_979BB07726A593010D1BA4A2', 'api_key_param': 'api_key', 'engine': 'api_key', 'data_path': '/api/otps', 'admin_id': None},
-    {'id': 'bp13', 'host': '168.119.13.175', 'base_url': 'http://168.119.13.175/ints', 'url_hint': 'http://168.119.13.175/ints/agent/SMSCDRStats', 'username': 'Rabbi1_FD', 'password': 'Rabbi12', 'engine': 'ints_smsranges', 'data_path': '/agent/res/data_smsranges.php', 'admin_id': None},
-    {'id': 'bp_mbcs', 'host': 'mbcs-ms.com', 'base_url': 'https://mbcs-ms.com', 'url_hint': 'https://mbcs-ms.com/crapi/mbc/viewstats', 'username': 'api:mbcs-ms.com', 'password': '', 'api_key': 'dK-hwDHGEYNBorSgzU7QAi8t91sAQqp3c_TLpa7IbJs', 'api_key_param': 'bearer', 'engine': 'api_key', 'data_path': '/crapi/mbc/viewstats', 'admin_id': None},
-    {'id': 'bp_royal2', 'host': '69.62.82.118', 'base_url': 'http://69.62.82.118', 'url_hint': 'http://69.62.82.118/api/v1/received', 'username': 'api:69.62.82.118', 'password': '', 'api_key': 'ed66fcc10a5f14dd5a68b54b7f9f4d36ec0b35ec', 'api_key_param': 'bearer', 'engine': 'api_key', 'data_path': '/api/v1/received', 'admin_id': None},
-    {'id': 'bp_royal', 'host': 'royalarmysms.com', 'base_url': 'https://royalarmysms.com', 'url_hint': 'https://royalarmysms.com/sms_panel/incoming-sms/', 'username': 'Rabbi', 'password': 'Rabbi12@', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': None},
-    {'id': 'bp14', 'host': '151.80.19.204', 'base_url': 'http://151.80.19.204/ints', 'url_hint': 'http://151.80.19.204/ints/agent/SMSCDRStats', 'username': 'Rabbi12', 'password': 'Rabbi12@', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': None},
-    {'id': 'bp15', 'host': '139.99.9.120', 'base_url': 'http://139.99.9.120/ints', 'url_hint': 'http://139.99.9.120/ints/agent/SMSCDRStats', 'username': 'Rabbi12', 'password': 'Rabbi12', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': None},
+    {'id': 'bp13', 'host': '168.119.13.175', 'base_url': 'http://168.119.13.175/ints', 'url_hint': 'http://168.119.13.175/ints/agent/SMSCDRStats', 'username': 'Rabbi1_FD', 'password': 'Rabbi12', 'engine': 'ints_smscdr', 'data_path': '/agent/res/data_smscdr.php', 'admin_id': None},
 ]
 # <<SYNC:_BUILTIN_PANELS:END>>
 
@@ -144,13 +138,13 @@ for _ep in _EXTRA_PANELS:
         _BUILTIN_PANELS.append(_ep)
 del _bp_ids_set
 
-POLL_INTERVAL = 1
+POLL_INTERVAL = 3
 DATA_FILE = "stock_data.json"
 USERS_FILE = "users.json"
 SEEN_FILE = "seen_otps.json"
 V2_USERS_FILE = "v2_users.json"
 
-bot = telebot.TeleBot(API_TOKEN, threaded=True, num_threads=100)
+bot = telebot.TeleBot(API_TOKEN, threaded=True, num_threads=40)
 
 # ── Persistent helpers ────────────────────────────────────────────────────────
 
@@ -292,8 +286,6 @@ _group_settings = load_json(GROUP_SETTINGS_FILE, {
     'support_id': '',
     'group_otp_send': True,
     'group_tag': 'ATIK',
-    'multi_groups': [],
-    'service_enabled': {'whatsapp': False, 'pc clone': False, 'facebook': False, 'instagram': False},
 })
 # <<SYNC:_group_settings_defaults:END>>
 
@@ -353,16 +345,6 @@ def get_group_tag():
 
 def is_auto_delete():
     return _group_settings.get("auto_delete", True)
-
-
-def get_multi_groups():
-    """Return list of extra group dicts [{chat_id, enabled}]."""
-    return _group_settings.get("multi_groups", [])
-
-
-def is_service_enabled(svc_key):
-    """Return True if a service is enabled for users (default: True)."""
-    return _group_settings.get("service_enabled", {}).get(svc_key, True)
 
 
 def _schedule_delete(chat_id, msg_id):
@@ -828,31 +810,13 @@ def _dispatch_otp(otp, number, seconds, service="", sms_body=""):
     clean = re.sub(r"\D", "", str(number))
     with user_map_lock:
         uid = user_map.get(clean)
-    multi = get_multi_groups()
-    print(f"[DISPATCH] OTP={otp} num={number} svc={service} primary_grp={grp} extra_grps={len(multi)} user_dm={uid} grp_send={is_group_otp_send_enabled()}")
-
-    def _send_to_group(gid):
-        try:
-            send_otp_message(gid, otp, number, seconds, service, sms_body)
-        except Exception as eg:
-            print(f"[DISPATCH] ⚠️ Group {gid} send error: {eg}")
-
-    if is_group_otp_send_enabled():
-        groups_to_send = []
-        if grp:
-            groups_to_send.append(grp)
-        for mg in multi:
-            mid = mg.get("chat_id")
-            if mid and mg.get("enabled", True):
-                groups_to_send.append(mid)
-        if groups_to_send:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=len(groups_to_send)) as pool:
-                list(pool.map(_send_to_group, groups_to_send))
-        else:
-            print(f"[DISPATCH] ⚠️ No OTP group configured — skipping group send!")
-    else:
+    print(f"[DISPATCH] OTP={otp} num={number} svc={service} group={grp} user_dm={uid} grp_send={is_group_otp_send_enabled()}")
+    if grp and is_group_otp_send_enabled():
+        send_otp_message(grp, otp, number, seconds, service, sms_body)
+    elif grp and not is_group_otp_send_enabled():
         print(f"[DISPATCH] ℹ️ Group OTP send is DISABLED — skipping group send (DM only mode)")
-
+    else:
+        print(f"[DISPATCH] ⚠️ No OTP group configured — skipping group send!")
     if uid:
         send_otp_message(uid, otp, number, seconds, service, sms_body)
         # Track OTP receive count per user
@@ -1028,10 +992,6 @@ _demo_svc_state: dict = {}
 _demo_cfg_temp: dict = {}
 
 seen_lock = threading.Lock()
-
-# ── Range timestamp tracking (range_prefix → unix ts of last OTP seen) ─────────
-_range_last_seen: dict = {}
-_range_ts_lock = threading.Lock()
 
 # ── Dynamic panel system ───────────────────────────────────────────────────────
 DYNAMIC_PANELS_FILE = "dynamic_panels.json"
@@ -2708,48 +2668,22 @@ def fetch_panel2():
 # ── Shared OTP processor ──────────────────────────────────────────────────────
 
 
-def _update_range_ts(number):
-    """Track the range prefix of a number with the current timestamp."""
-    try:
-        clean = re.sub(r"\D", "", str(number))
-        if len(clean) >= 7:
-            prefix_len = max(4, min(9, len(clean) - 6))
-            prefix = clean[:prefix_len]
-            with _range_ts_lock:
-                _range_last_seen[prefix] = time.time()
-    except Exception:
-        pass
-
-
 def process_new_otps(current):
     global seen_otps
-    new_items = []
     for key, (number, otp, sms_txt, service) in current.items():
         with seen_lock:
             if key in seen_otps:
                 continue
             seen_otps[key] = True
             save_json(SEEN_FILE, seen_otps)
-        _update_range_ts(number)
         clean = re.sub(r"\D", "", str(number))
         with user_map_lock:
             t_start = assigned_time.get(clean)
         seconds = int(time.time() - t_start) if t_start else 0
-        new_items.append((otp, number, seconds, service, sms_txt or ""))
-        print(f"[MONITOR] ✅ Forwarded OTP={otp} for {number} ({service}) in {seconds}s")
-
-    if not new_items:
-        return
-
-    # Dispatch all new OTPs in parallel for sub-second delivery
-    def _do_dispatch(args):
-        try:
-            _dispatch_otp(*args)
-        except Exception as e:
-            print(f"[MONITOR] dispatch error: {e}")
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(new_items), 20)) as pool:
-        list(pool.map(_do_dispatch, new_items))
+        _dispatch_otp(otp, number, seconds, service, sms_txt or "")
+        print(
+            f"[MONITOR] ✅ Forwarded OTP={otp} for {number} ({service}) in {seconds}s"
+        )
 
 
 # ── Global OTP monitors ───────────────────────────────────────────────────────
@@ -3351,8 +3285,7 @@ SERVICE_BUTTON_MAP = {}
 
 def show_services(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    enabled_svcs = [s for s in _services if is_service_enabled(s["key"])]
-    btns = [types.KeyboardButton(s["label"]) for s in enabled_svcs]
+    btns = [types.KeyboardButton(s["label"]) for s in _services]
     for i in range(0, len(btns), 2):
         markup.add(*btns[i:i + 2])
     markup.add(types.KeyboardButton("🔙 Main Menu"))
@@ -3462,29 +3395,6 @@ def panels_cmd(message):
     with _demo_lock:
         demo_on = _demo_active
     demo_str = "🟢 Running" if demo_on else "🔴 Stopped"
-    # Build range timestamp block
-    with _range_ts_lock:
-        range_snap = dict(_range_last_seen)
-    now_ts = time.time()
-    range_lines = ""
-    if range_snap:
-        sorted_ranges = sorted(range_snap.items(), key=lambda x: x[1], reverse=True)[:15]
-        for pfx, ts in sorted_ranges:
-            c_name, flag = get_country_details(pfx)
-            ago = int(now_ts - ts)
-            if ago < 60:
-                ago_str = f"{ago}s ago"
-            elif ago < 3600:
-                ago_str = f"{ago // 60}m ago"
-            else:
-                ago_str = f"{ago // 3600}h ago"
-            range_lines += f"  {flag} <code>{pfx}x</code>  •  {ago_str}\n"
-    _no_range_str = "  <i>No data yet</i>\n"
-    range_section = (
-        "\n📍 <b>Live Range Timestamps</b>\n"
-        "<i>(Last OTP seen per range prefix)</i>\n"
-        + (range_lines or _no_range_str)
-    )
     bot.send_message(
         message.chat.id,
         f"📡 <b>PANEL STATUS</b>\n"
@@ -3492,8 +3402,7 @@ def panels_cmd(message):
         f"{lines}"
         f"🎭 <b>Demo OTP:</b>  {demo_str}\n\n"
         f"⚡━━━━━━━━━━━━━━━━⚡\n"
-        f"🔄 <i>Updates every {POLL_INTERVAL}s</i>"
-        f"{range_section}",
+        f"🔄 <i>Updates every {POLL_INTERVAL}s</i>",
         parse_mode="HTML",
     )
     caller_uid = message.from_user.id
@@ -4812,16 +4721,11 @@ def callback_handler(call):
         elif data.startswith("n:"):
             _, svc, scnt = data.split(":")
             if scnt in stock.get(svc, {}) and stock[svc][scnt]:
-                uid_n = call.from_user.id
-                # Pop up to 3 numbers from stock
-                nums_to_give = []
-                for _ in range(3):
-                    if stock.get(svc, {}).get(scnt):
-                        nums_to_give.append(stock[svc][scnt].pop(0))
-                    else:
-                        break
+                num = stock[svc][scnt].pop(0)
                 save_stock()
-                # Release any previously assigned numbers for this user
+                c_name, flag = get_country_details(num)
+                uid_n = call.from_user.id
+                # Release any previously assigned number for this user — delete it permanently
                 with user_map_lock:
                     old_nums = [k for k, v in user_map.items() if v == uid_n]
                     for old_clean in old_nums:
@@ -4830,92 +4734,68 @@ def callback_handler(call):
                 if old_nums:
                     _save_user_map()
                     print(f"[N:] Deleted old number(s) {old_nums} for user {uid_n}")
-                # Register all given numbers for OTP delivery to this user
-                for _gnum in nums_to_give:
-                    register_number(call.message.chat.id, _gnum)
-                # Use first number for display/country info
-                first_num = nums_to_give[0]
-                c_name, flag = get_country_details(first_num)
-                # Build number buttons (one per line, copyable)
-                init_kb = types.InlineKeyboardMarkup(row_width=1)
-                for _gnum in nums_to_give:
-                    dn = _gnum if _gnum.startswith("+") else "+" + _gnum
-                    init_kb.add(types.InlineKeyboardButton(
-                        f"📋 {dn}",
-                        callback_data=f"copyn:{re.sub(r'[^0-9]', '', _gnum)}"
-                    ))
-                # Bottom buttons
-                bottom_kb = types.InlineKeyboardMarkup(row_width=2)
-                bottom_kb.add(
-                    types.InlineKeyboardButton("🔄 𝗖𝗵𝗮𝗻𝗴𝗲 𝗡𝘂𝗺𝗯𝗲𝗿", callback_data=f"n:{svc}:{scnt}"),
+                register_number(call.message.chat.id, num)
+                display_num = num if num.startswith("+") else "+" + num
+                init_kb = types.InlineKeyboardMarkup(row_width=2)
+                init_kb.add(
+                    types.InlineKeyboardButton("🔄 𝗚𝗲𝘁 𝗡𝗲𝘄 𝗡𝘂𝗺𝗯𝗲𝗿", callback_data=f"n:{svc}:{scnt}"),
                     types.InlineKeyboardButton("🌍 𝗖𝗵𝗮𝗻𝗴𝗲 𝗖𝗼𝘂𝗻𝘁𝗿𝘆", callback_data=f"s:{svc}"),
                 )
                 if get_otp_group_link():
-                    bottom_kb.add(
-                        types.InlineKeyboardButton("📢 𝗢𝗧𝗣 𝗚𝗿𝗼𝘂𝗽 ↗", url=get_otp_group_link()),
+                    init_kb.add(
+                        types.InlineKeyboardButton("📢 𝗢𝗧𝗣 𝗚𝗿𝗼𝘂𝗽", url=get_otp_group_link()),
                     )
-                bottom_kb.add(types.InlineKeyboardButton("⬅️ 𝗕𝗮𝗰𝗸", callback_data="back_to_services"))
-                # Merge into one keyboard: number buttons first, then bottom buttons
-                all_kb = types.InlineKeyboardMarkup(row_width=1)
-                for _gnum in nums_to_give:
-                    dn = _gnum if _gnum.startswith("+") else "+" + _gnum
-                    all_kb.add(types.InlineKeyboardButton(
-                        f"📋 {dn}",
-                        callback_data=f"copyn:{re.sub(r'[^0-9]', '', _gnum)}"
-                    ))
-                all_kb.add(
-                    types.InlineKeyboardButton("🔄 𝗖𝗵𝗮𝗻𝗴𝗲 𝗡𝘂𝗺𝗯𝗲𝗿", callback_data=f"n:{svc}:{scnt}"),
+                res = get_template("number_assigned").format(
+                    svc=svc.capitalize(), flag=flag, country=c_name, number=display_num
                 )
-                if get_otp_group_link():
-                    all_kb.add(types.InlineKeyboardButton("📢 𝗢𝗧𝗣 𝗚𝗿𝗼𝘂𝗽 ↗", url=get_otp_group_link()))
-                all_kb.add(types.InlineKeyboardButton("⬅️ 𝗕𝗮𝗰𝗸", callback_data="back_to_services"))
-                # Track service/country for this user
+                # Track service/country for this user so OTP message buttons work
                 _user_last_svc[uid_n] = (svc, scnt)
                 tracked_num_msg = _user_last_num_msg.get(uid_n)
                 clicked_msg_id = call.message.message_id
                 if tracked_num_msg and clicked_msg_id == tracked_num_msg:
+                    # Clicked from "Number Assigned" message → delete it
                     try:
-                        bot.delete_message(chat_id=call.message.chat.id, message_id=clicked_msg_id)
+                        bot.delete_message(
+                            chat_id=call.message.chat.id,
+                            message_id=clicked_msg_id,
+                        )
                     except Exception:
                         pass
                 else:
+                    # Clicked from OTP code message → keep it, only strip buttons
                     try:
-                        bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=clicked_msg_id, reply_markup=None)
+                        bot.edit_message_reply_markup(
+                            chat_id=call.message.chat.id,
+                            message_id=clicked_msg_id,
+                            reply_markup=None,
+                        )
                     except Exception:
                         pass
+                    # Delete any separately tracked "Number Assigned" message
                     if tracked_num_msg:
                         try:
-                            bot.delete_message(chat_id=call.message.chat.id, message_id=tracked_num_msg)
+                            bot.delete_message(
+                                chat_id=call.message.chat.id,
+                                message_id=tracked_num_msg,
+                            )
                         except Exception:
                             pass
-                nums_str = "\n".join(
-                    (n if n.startswith("+") else "+" + n) for n in nums_to_give
-                )
+                # Send fresh number-assigned message
                 new_msg = bot.send_message(
                     call.message.chat.id,
-                    f"✅ <b>Number পেয়েছ!</b>\n\n"
-                    f"🔧 <b>Platform:</b> {svc.capitalize()}\n"
-                    f"🌍 <b>Country:</b> {flag} {c_name}\n\n"
-                    f"📋 <b>OTP আসলে এখানে পাঠানো হবে।</b>",
-                    reply_markup=all_kb,
+                    res,
+                    reply_markup=init_kb,
                     parse_mode="HTML",
                 )
+                # Track this new message so OTP arrival can delete it
                 _user_last_num_msg[uid_n] = new_msg.message_id
                 _start_countdown(
                     call.message.chat.id,
                     new_msg.message_id,
-                    svc, flag, c_name,
-                    (first_num if first_num.startswith("+") else "+" + first_num),
-                    scnt,
+                    svc, flag, c_name, display_num, scnt,
                 )
             else:
                 bot.answer_callback_query(call.id, " STOCK SHESH! ", show_alert=True)
-
-        elif data.startswith("copyn:"):
-            # User tapped a number button — show it in an alert so they can copy
-            clean_n = data.split(":", 1)[1]
-            display = "+" + clean_n
-            bot.answer_callback_query(call.id, display, show_alert=True)
 
         elif data == "clr_menu":
             if call.from_user.id not in ADMIN_IDS:
@@ -5275,160 +5155,6 @@ def callback_handler(call):
             except Exception:
                 pass
 
-        elif data == "svc_toggle_list":
-            if call.from_user.id not in ADMIN_IDS:
-                return
-            bot.answer_callback_query(call.id)
-            markup = types.InlineKeyboardMarkup(row_width=1)
-            svc_enabled = _group_settings.get("service_enabled", {})
-            for svc in _services:
-                key = svc["key"]
-                on = svc_enabled.get(key, True)
-                state_icon = "🟢 ON" if on else "🔴 OFF"
-                markup.add(types.InlineKeyboardButton(
-                    f"{state_icon}  {svc['label']}",
-                    callback_data=f"svc_toggle:{key}"
-                ))
-            markup.add(types.InlineKeyboardButton("✅ Done", callback_data="grp_info"))
-            try:
-                bot.edit_message_text(
-                    "🔄 <b>Service ON/OFF Toggle</b>\n\n"
-                    "Click a service to toggle it ON or OFF for users:\n"
-                    "<i>OFF = users cannot see/use this service</i>",
-                    call.message.chat.id, call.message.message_id,
-                    reply_markup=markup, parse_mode="HTML"
-                )
-            except Exception:
-                bot.send_message(call.message.chat.id,
-                    "🔄 <b>Service ON/OFF Toggle</b>\n\nClick a service to toggle:",
-                    reply_markup=markup, parse_mode="HTML")
-
-        elif data.startswith("svc_toggle:"):
-            if call.from_user.id not in ADMIN_IDS:
-                return
-            key = data.split(":", 1)[1]
-            svc_enabled = _group_settings.setdefault("service_enabled", {})
-            cur = svc_enabled.get(key, True)
-            svc_enabled[key] = not cur
-            save_group_settings()
-            new_state = not cur
-            bot.answer_callback_query(
-                call.id,
-                f"{'🟢 ON' if new_state else '🔴 OFF'} — {key}",
-                show_alert=False
-            )
-            markup = types.InlineKeyboardMarkup(row_width=1)
-            for svc in _services:
-                k = svc["key"]
-                on = svc_enabled.get(k, True)
-                state_icon = "🟢 ON" if on else "🔴 OFF"
-                markup.add(types.InlineKeyboardButton(
-                    f"{state_icon}  {svc['label']}",
-                    callback_data=f"svc_toggle:{k}"
-                ))
-            markup.add(types.InlineKeyboardButton("✅ Done", callback_data="grp_info"))
-            try:
-                bot.edit_message_reply_markup(
-                    call.message.chat.id, call.message.message_id, reply_markup=markup
-                )
-            except Exception:
-                pass
-
-        elif data == "multigrp_list":
-            if call.from_user.id not in ADMIN_IDS:
-                return
-            bot.answer_callback_query(call.id)
-            multi = get_multi_groups()
-            markup = types.InlineKeyboardMarkup(row_width=1)
-            for i, mg in enumerate(multi):
-                cid = mg.get("chat_id", "?")
-                on = mg.get("enabled", True)
-                icon = "🟢" if on else "🔴"
-                markup.add(types.InlineKeyboardButton(
-                    f"{icon} Group {i+1}: {cid}",
-                    callback_data=f"multigrp_toggle:{i}"
-                ))
-                markup.add(types.InlineKeyboardButton(
-                    f"🗑️ Remove Group {i+1}: {cid}",
-                    callback_data=f"multigrp_rm:{i}"
-                ))
-            markup.add(types.InlineKeyboardButton("➕ Add New Group", callback_data="multigrp_add"))
-            markup.add(types.InlineKeyboardButton("⬅️ Back", callback_data="grp_info"))
-            try:
-                bot.edit_message_text(
-                    f"📢 <b>Multi-Group Management</b>\n\n"
-                    f"Primary group + {len(multi)} extra group(s).\n"
-                    f"OTPs will broadcast to all enabled groups.\n\n"
-                    f"<i>Click a group to toggle it ON/OFF, or remove it.</i>",
-                    call.message.chat.id, call.message.message_id,
-                    reply_markup=markup, parse_mode="HTML"
-                )
-            except Exception:
-                bot.send_message(call.message.chat.id,
-                    f"📢 <b>Multi-Group Management</b>\n{len(multi)} extra group(s)",
-                    reply_markup=markup, parse_mode="HTML")
-
-        elif data.startswith("multigrp_toggle:"):
-            if call.from_user.id not in ADMIN_IDS:
-                return
-            try:
-                idx = int(data.split(":", 1)[1])
-            except ValueError:
-                return
-            multi = _group_settings.setdefault("multi_groups", [])
-            if 0 <= idx < len(multi):
-                multi[idx]["enabled"] = not multi[idx].get("enabled", True)
-                save_group_settings()
-                bot.answer_callback_query(
-                    call.id,
-                    f"{'🟢 Enabled' if multi[idx]['enabled'] else '🔴 Disabled'} Group {idx+1}",
-                    show_alert=False
-                )
-            # Refresh the list
-            import types as _t
-            fake_call = type('_C', (), {'id': call.id, 'from_user': call.from_user, 'message': call.message, 'data': 'multigrp_list'})()
-            try:
-                bot.edit_message_text(
-                    f"📢 <b>Multi-Group Management</b>\n\nUpdated!",
-                    call.message.chat.id, call.message.message_id, parse_mode="HTML"
-                )
-            except Exception:
-                pass
-
-        elif data.startswith("multigrp_rm:"):
-            if call.from_user.id not in ADMIN_IDS:
-                return
-            try:
-                idx = int(data.split(":", 1)[1])
-            except ValueError:
-                return
-            multi = _group_settings.setdefault("multi_groups", [])
-            if 0 <= idx < len(multi):
-                removed = multi.pop(idx)
-                save_group_settings()
-                bot.answer_callback_query(call.id, f"✅ Removed group {removed.get('chat_id','?')}", show_alert=False)
-            try:
-                bot.edit_message_text(
-                    f"✅ <b>Group Removed!</b>\n\n{len(multi)} extra group(s) remaining.",
-                    call.message.chat.id, call.message.message_id, parse_mode="HTML"
-                )
-            except Exception:
-                pass
-
-        elif data == "multigrp_add":
-            if call.from_user.id not in ADMIN_IDS:
-                return
-            bot.answer_callback_query(call.id)
-            msg = bot.send_message(
-                call.message.chat.id,
-                "📢 <b>Add Extra OTP Group</b>\n\n"
-                "নতুন group-এর Chat ID পাঠাও:\n"
-                "<i>Example: -1001234567890</i>\n\n"
-                "⚠️ Bot কে ঐ group-এ admin করো আগে।",
-                reply_markup=_back_admin_kb(), parse_mode="HTML"
-            )
-            bot.register_next_step_handler(msg, _multigrp_get_id)
-
         elif data == "grp_info":
             if call.from_user.id not in ADMIN_IDS:
                 return
@@ -5544,16 +5270,11 @@ def callback_handler(call):
             ranges = svc_data.get("ranges", [])
             markup = types.InlineKeyboardMarkup(row_width=2)
             rng_btns = []
-            caller_is_admin = call.from_user.id in ADMIN_IDS
             for rng in ranges:
                 prefix = rng.rstrip("X")
                 c_name, flag = get_country_details(prefix)
                 short = c_name.split()[0] if c_name and c_name != "Unknown" else ""
-                # Admins see full range+number; regular users see only flag+country
-                if caller_is_admin:
-                    label = f"{flag} {short} | {rng}" if short else f"{flag} {rng}"
-                else:
-                    label = f"{flag} {short}" if short else f"{flag}"
+                label = f"{flag} {short} | {rng}" if short else f"{flag} {rng}"
                 rng_btns.append(types.InlineKeyboardButton(
                     label, callback_data=f"v2rng:{prefix}:{sid}"
                 ))
@@ -6335,59 +6056,6 @@ def text_handler(message):
             bot.send_message(message.chat.id,
                 "ℹ️ <b>Kono resend cholthechhilo na.</b>",
                 parse_mode="HTML")
-
-    elif txt == "🔄 𝗦𝗲𝗿𝘃𝗶𝗰𝗲 𝗢𝗡/𝗢𝗙𝗙" and uid in ADMIN_IDS:
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        svc_enabled = _group_settings.get("service_enabled", {})
-        for svc in _services:
-            key = svc["key"]
-            on = svc_enabled.get(key, True)
-            state_icon = "🟢 ON" if on else "🔴 OFF"
-            markup.add(types.InlineKeyboardButton(
-                f"{state_icon}  {svc['label']}",
-                callback_data=f"svc_toggle:{key}"
-            ))
-        markup.add(types.InlineKeyboardButton("✅ Done", callback_data="grp_info"))
-        bot.send_message(
-            message.chat.id,
-            "🔄 <b>Service ON/OFF Toggle</b>\n\n"
-            "Click a service to toggle it ON or OFF for users:\n"
-            "<i>OFF = users cannot see/use this service</i>",
-            reply_markup=markup, parse_mode="HTML"
-        )
-
-    elif txt == "➕ 𝗔𝗱𝗱 𝗚𝗿𝗼𝘂𝗽" and uid in ADMIN_IDS:
-        msg = bot.send_message(
-            message.chat.id,
-            "📢 <b>Add Extra OTP Group</b>\n\n"
-            "নতুন group-এর Chat ID পাঠাও:\n"
-            "<i>Example: -1001234567890</i>\n\n"
-            "⚠️ Bot কে ঐ group-এ admin করো আগে।",
-            reply_markup=_back_admin_kb(), parse_mode="HTML"
-        )
-        bot.register_next_step_handler(msg, _multigrp_get_id)
-
-    elif txt == "🗑️ 𝗠𝗮𝗻𝗮𝗴𝗲 𝗚𝗿𝗼𝘂𝗽𝘀" and uid in ADMIN_IDS:
-        multi = get_multi_groups()
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        for i, mg in enumerate(multi):
-            cid = mg.get("chat_id", "?")
-            on = mg.get("enabled", True)
-            icon = "🟢" if on else "🔴"
-            markup.add(types.InlineKeyboardButton(
-                f"{icon} Group {i+1}: {cid}",
-                callback_data=f"multigrp_toggle:{i}"
-            ))
-            markup.add(types.InlineKeyboardButton(
-                f"🗑️ Remove Group {i+1}: {cid}",
-                callback_data=f"multigrp_rm:{i}"
-            ))
-        markup.add(types.InlineKeyboardButton("➕ Add New Group", callback_data="multigrp_add"))
-        if not multi:
-            txt_msg = "📢 <b>Multi-Group Management</b>\n\nKono extra group add kora nei.\n\n<i>➕ Add New Group button diye add koro.</i>"
-        else:
-            txt_msg = f"📢 <b>Multi-Group Management</b>\n\nPrimary group + {len(multi)} extra group(s).\nOTP broadcast korbe soba enabled group-e."
-        bot.send_message(message.chat.id, txt_msg, reply_markup=markup, parse_mode="HTML")
 
     elif txt == "🔍 𝗧𝗲𝘀𝘁 𝗣𝗮𝗻𝗲𝗹" and uid in ADMIN_IDS:
         _testpanel_state[uid] = {"step": "url", "data": {}}
@@ -7414,8 +7082,6 @@ def _go_admin_panel(message, text="🔥 <b>ADMIN PANEL</b>"):
     m_admin.add("➕ 𝗔𝗱𝗱 𝗦𝗲𝗿𝘃𝗶𝗰𝗲", "🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 𝗦𝗲𝗿𝘃𝗶𝗰𝗲")
     m_admin.add("📊 𝗣𝗮𝗻𝗲𝗹𝘀", "🔍 𝗧𝗲𝘀𝘁 𝗣𝗮𝗻𝗲𝗹")
     m_admin.add("📤 𝗣𝘂𝗿𝗮𝗻𝗼 𝗢𝗧𝗣 𝗚𝗿𝘂𝗽𝗲 𝗦𝗲𝗻𝗱", "🛑 𝗣𝘂𝗿𝗮𝗻𝗼 𝗢𝗧𝗣 𝗕𝗼𝗻𝗱𝗵𝗼")
-    m_admin.add("🔄 𝗦𝗲𝗿𝘃𝗶𝗰𝗲 𝗢𝗡/𝗢𝗙𝗙")
-    m_admin.add("➕ 𝗔𝗱𝗱 𝗚𝗿𝗼𝘂𝗽", "🗑️ 𝗠𝗮𝗻𝗮𝗴𝗲 𝗚𝗿𝗼𝘂𝗽𝘀")
     if is_super_admin(uid):
         m_admin.add("👑 𝗔𝗱𝗱 𝗔𝗱𝗺𝗶𝗻", "🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 𝗔𝗱𝗺𝗶𝗻")
         m_admin.add("📞 𝗦𝘂𝗽𝗽𝗼𝗿𝘁 𝗜𝗗")
@@ -7588,12 +7254,11 @@ _ALL_MENU_BTNS = {
     "⚙️ 𝗔𝗗𝗠𝗜𝗡 𝗣𝗔𝗡𝗘𝗟 ⚙️", "🔙 Main Menu",
     "➕ 𝗡𝘂𝗺𝗯𝗮𝗿 𝗔𝗱𝗱", "🗑️ 𝗦𝗼𝗯 𝗖𝗹𝗲𝗮𝗿",
     "🔥📢 𝗕𝗿𝗼𝗮𝗱𝗰𝗮𝘀𝘁", "⚡👥 𝗨𝘀𝗲𝗿 𝗖𝗼𝘂𝗻𝘁",
-    "📋👥 𝗨𝘀𝗲𝗿 𝗟𝗶𝘀??", "📈 𝗢𝗧𝗣 𝗦𝘁𝗮𝘁𝘀", "🎭 𝗗𝗘𝗠𝗢 𝗢𝗧𝗣",
+    "📋👥 𝗨𝘀𝗲𝗿 𝗟𝗶𝘀𝘁", "📈 𝗢𝗧𝗣 𝗦𝘁𝗮𝘁𝘀", "🎭 𝗗𝗘𝗠𝗢 𝗢𝗧𝗣",
     "➕ 𝗔𝗱𝗱 𝗣𝗮𝗻𝗲𝗹", "🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 𝗣𝗮𝗻𝗲𝗹",
     "➕ 𝗔𝗱𝗱 𝗦𝗲𝗿𝘃𝗶𝗰𝗲", "🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 𝗦𝗲𝗿𝘃𝗶𝗰𝗲",
     "📊 𝗣𝗮𝗻𝗲𝗹𝘀", "🔍 𝗧𝗲𝘀𝘁 𝗣𝗮𝗻𝗲𝗹", "👑 𝗔𝗱𝗱 𝗔𝗱𝗺𝗶𝗻", "🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 𝗔𝗱𝗺𝗶𝗻",
     "📞 𝗦𝘂𝗽𝗽𝗼𝗿𝘁 𝗜𝗗",
-    "🔄 𝗦𝗲𝗿𝘃𝗶𝗰𝗲 𝗢𝗡/𝗢𝗙𝗙", "➕ 𝗔𝗱𝗱 𝗚𝗿𝗼𝘂𝗽", "🗑️ 𝗠𝗮𝗻𝗮𝗴𝗲 𝗚𝗿𝗼𝘂𝗽𝘀",
     "⚙️ 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀", "✏️ 𝗘𝗱𝗶𝘁 𝗠𝗲𝘀𝘀𝗮𝗴𝗲𝘀", "📡 𝗩𝟮 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 𝗙𝗼𝗿𝗺𝗮𝘁", "⬅️🔙 𝗨𝘀𝗲𝗿 𝗠𝗲𝗻𝘂",
     "🔙 𝗔𝗗𝗠𝗜𝗡 𝗣𝗔𝗡𝗘𝗟", "🔙 Admin Panel", "🔙 Admin Menu",
 }
@@ -7608,47 +7273,6 @@ def _intercept_menu_btn(message):
         text_handler(message)
         return True
     return False
-
-
-def _multigrp_get_id(message):
-    """Next-step handler: reads new group chat_id and saves it."""
-    txt = (message.text or "").strip()
-    if _is_back(txt) or _intercept_menu_btn(message):
-        return
-    try:
-        chat_id_val = int(txt)
-    except ValueError:
-        msg = bot.send_message(
-            message.chat.id,
-            "❌ <b>Valid Chat ID dao</b> — negative number:\n"
-            "<i>Example: -1001234567890</i>",
-            reply_markup=_back_admin_kb(), parse_mode="HTML"
-        )
-        bot.register_next_step_handler(msg, _multigrp_get_id)
-        return
-    multi = _group_settings.setdefault("multi_groups", [])
-    # Avoid duplicates
-    existing_ids = [mg.get("chat_id") for mg in multi]
-    if chat_id_val in existing_ids:
-        bot.send_message(
-            message.chat.id,
-            f"⚠️ <b>Group {chat_id_val} already added!</b>",
-            reply_markup=_back_admin_kb(), parse_mode="HTML"
-        )
-        _go_admin_panel(message)
-        return
-    multi.append({"chat_id": chat_id_val, "enabled": True})
-    save_group_settings()
-    _admin_panel_last.pop(message.chat.id, None)
-    bot.send_message(
-        message.chat.id,
-        f"✅ <b>Group Added!</b>\n\n"
-        f"📢 Chat ID: <code>{chat_id_val}</code>\n"
-        f"Total extra groups: {len(multi)}\n\n"
-        f"<i>OTP deliver korbe ei group-eও.</i>",
-        parse_mode="HTML"
-    )
-    _go_admin_panel(message)
 
 
 def process_auto_add(message):
